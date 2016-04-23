@@ -1,7 +1,0 @@
-print ("hello World")
-print ("Hello Again")
-print ("i like typing this")
-print ("this is fun")
-print ("Yay! Printing")
-#print ("i'd much rather you'd not")
-print ("i said do 'not' touch this")
