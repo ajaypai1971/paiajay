@@ -7,7 +7,7 @@ import ssl
 s = ssl.SSLContext(ssl.PROTOCOL_SSLv23)  # For VC 6.5/6.0 s=ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 s.verify_mode = ssl.CERT_NONE
 
-si = SmartConnect(host="qa-dur-vc-1.datadomain.com", user="corp\paiajay", pwd="DellEmc@1", sslContext=s)
+si = SmartConnect(host="qa-dur-vc-1.datadomain.com", user="user_name", pwd="password", sslContext=s)
 datacenter = si.content.rootFolder.childEntity[0]
 
 print("Product Name:", datacenter)
