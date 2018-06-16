@@ -1,0 +1,113 @@
+import csv
+import os
+import paramiko
+import time
+
+""" 
+func to convert csv formatted DDR list to a python list.
+csv should be in format with first row as sl. # and the second row 
+preferably as FQDN.
+
+takes in a .csv file and returns a list in the format ['sl. no', 'ddr_name/IP']
+"""
+
+def csv_to_list(csv_file):
+    # print(type(csv_file))
+    ddr_list = []
+    with open(csv_file, 'r') as f:
+        rows = csv.reader(f)
+        for row in rows:
+            ddr_list.append(row)
+            # print(row)
+    return(ddr_list)
+
+"""
+func to ping ddr from the list and return the working and non working ddrs a lists.
+also strips the sl. no. and returns only ddr FQDN as a list.
+"""
+
+def ping_ddr(ddr_list):
+
+    working = []
+    non_working = []
+    working_ddr = []
+    non_working_ddr = []
+
+    for ddr in ddr_list:
+        ping_resp = os.system("ping -n 1 " + ddr[1])
+        if ping_resp == 0:
+            working.append(ddr)
+        else:
+            non_working.append(ddr)
+
+    for item in working:
+        working_ddr.append(item[1])
+
+    for item in non_working:
+        non_working_ddr.append(item[1])
+
+    return(working_ddr, non_working_ddr)
+
+def ddr_poweroff(ddrs):
+
+    ddr_poweroff_list = ddrs
+    uname = "sysadmin"
+    passwd = "abc123"
+
+    for ddr in ddr_poweroff_list:
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname= ddr , port= 22, username= uname, password= passwd)
+
+    #invoke shell to DDR
+        cli_shell = ssh.invoke_shell()
+
+        buffer = ""
+        while True:
+
+            if not cli_shell.recv_ready() :
+                print("channel not ready")
+            else:
+                print("else loop, channel is ready")
+                buffer += cli_shell.recv(9999).decode('ascii')
+                print(buffer)
+
+                if buffer.endswith("# ") :
+                    cli_shell.send("system reboot \n")
+                    print("if loop; channel is ", cli_shell.recv_ready())
+                elif buffer.endswith("[no]: ") :
+                    print("a")
+                    cli_shell.send("yes \n")
+                    print("b")
+                    break
+            time.sleep(3)
+        cli_shell.close()
+
+
+"""
+
+MAIN PROGRAM STARTS HERE
+
+"""
+
+csv_file = "ddr.csv"
+
+ddr_list  = csv_to_list(csv_file)
+
+print(ddr_list)
+
+"""
+split the ddr list to working and non working DDRs
+"""
+
+working_ddr, non_working_ddr  = ping_ddr(ddr_list)
+
+print("working ddrs' are", working_ddr)
+print("ddrs' not working are", non_working_ddr)
+
+
+ddr_poweroff(working_ddr)
+
+#sending a list of ddrs to be powered off
+# ddr_poweroff(working_ddr)
