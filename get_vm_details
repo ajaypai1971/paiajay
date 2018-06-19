@@ -1,0 +1,29 @@
+from pyVim.connect import SmartConnect
+import ssl
+
+s = ssl.SSLContext(ssl.PROTOCOL_SSLv23)  # For VC 6.5/6.0 s=ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+s.verify_mode = ssl.CERT_NONE
+
+vc_fqdn = <enter_vc_fqdn>
+user_name = <enter_user_with_appropriate_permissions>
+password = <password>
+
+vc_connect = SmartConnect(host=vc_fqdn, user=user_name, pwd=password, sslContext=s)
+
+vm = None
+search_index = vc_connect.content.searchIndex
+
+vm = search_index.FindByIp(ip = "<IP>", vmSearch = True) 
+#vmSearch is for searching vms,else search forESXi hosts
+
+details = {'name': vm.summary.config.name,
+           'instance UUID': vm.summary.config.instanceUuid,
+           'bios UUID': vm.summary.config.uuid,
+           'path to VM': vm.summary.config.vmPathName,
+           'guest OS id': vm.summary.config.guestId,
+           'guest OS name': vm.summary.config.guestFullName,
+           'host name': vm.runtime.host.name,
+           'last booted timestamp': vm.runtime.bootTime}
+
+for name, value in details.items():
+    print(u"  {0:{width}{base}}: {1}".format(name, value, width=25, base='s')
