@@ -1,0 +1,35 @@
+import os
+cur_dir  = "C:/Users/paiajay/Desktop"
+
+os.chdir(cur_dir)
+
+l1 = os.listdir() # returns a list of contents of the folder.
+
+#if pdf folder exists then no action, else create one
+
+if os.path.exists(cur_dir + "/" + "pdf"):
+    pass
+else:
+    os.mkdir(cur_dir + "/" + "pdf")
+
+if os.path.exists(cur_dir + "/" + "py"):
+    pass
+else:
+    os.mkdir(cur_dir + "/" + "py")
+
+
+for i in l1:
+    if i.endswith(".pdf"):
+        source = cur_dir + "/" + i
+        dest = cur_dir + "/" + "pdf" + "/" + i
+        # print(dest)
+        os.rename(source, dest)
+
+    if i.endswith(".py"):
+        source = cur_dir + "/" + i
+        dest = cur_dir + "/" + "py" + "/" + i
+        # print(dest)
+        os.rename(source, dest)
+
+
+
